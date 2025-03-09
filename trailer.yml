@@ -3,4 +3,4 @@ description: |
   "This Trailer.dev recommendation will automatically add Python as a dependency,
    if a PyPI dependency is added without Python being added first. This recommendation
    will automatically set Python to the latest version from conda-forge"
-runtime: go
+runtime: github.com/vidosits/trailer-add-python/example
