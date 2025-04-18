@@ -5,3 +5,4 @@ description: |
    will automatically set Python to the latest version from conda-forge"
 runtime: go
 import: github.com/vidosits/trailer-add-python/example
+type: image
