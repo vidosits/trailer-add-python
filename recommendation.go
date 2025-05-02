@@ -1,41 +1,69 @@
-package test
+package recommendation
 
 import (
-	"fmt"
-	"os"
-	"path/filepath"
+	"encoding/json"
 )
 
-func test() {
-	// Define the root directory to start walking from.
-	// "." represents the current directory.
-	rootDir := "."
+func environmentHasPython(environment Environment) bool {
+	for _, pkg := range environment.Packages {
+		if pkg.Name == "python" {
+			return true
+		}
+	}
+	return false
+}
 
-	// Use filepath.Walk to recursively traverse the directory tree.
-	// It takes the root path and a WalkFunc.
-	// The WalkFunc is called for each file or directory visited.
-	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-		// If an error occurs while accessing a file or directory,
-		// print the error and continue walking (or return the error
-		// to stop the walk entirely). Here, we just print and continue.
-		if err != nil {
-			fmt.Printf("Error accessing path %q: %v\n", path, err)
-			return err // Return the error to stop the walk on this branch
-			// return nil // Or return nil to ignore the error and continue
+func Match(configuration string) (bool, error) {
+	var config ImageConfiguration
+	if err := json.Unmarshal([]byte(configuration), &config); err != nil {
+		return false, err
+	}
+
+	// Check if ANY environment is missing a conda package named "python"
+	for _, env := range config.Environments {
+		if len(env.Packages) > 0 && !environmentHasPython(env) {
+			return true, nil
+		}
+	}
+
+	// we got this far, so all environments have python, this recommendation is not applicable
+	return false, nil
+}
+
+func Recommend(configuration string) (string, error) {
+	var config ImageConfiguration
+	if err := json.Unmarshal([]byte(configuration), &config); err != nil {
+		return "", err
+	}
+
+	// Add an unconstrained version of python to each environment
+	for envName, env := range config.Environments {
+		if environmentHasPython(env) || len(env.Packages) == 0 {
+			continue
 		}
 
-		// Print the path of the current file or directory.
-		// info.Name() would print just the name, path prints the full path from rootDir.
-		fmt.Println(path)
+		pythonPackage := Package[Version]{
+			Name: "python",
+			Version: Version{
+				Specifier:  UnconstrainedVersion,
+				Constraint: "*",
+			},
+			Channel: "conda-forge",
+		}
 
-		// Return nil to continue the walk.
-		// To skip a directory and its contents, return filepath.SkipDir.
-		return nil
-	})
+		// add the package to the environment
+		env.Packages = append(env.Packages, pythonPackage)
 
-	// Check if there was an error during the walk itself (e.g., permission denied on rootDir)
-	if err != nil {
-		fmt.Printf("Error walking the directory %q: %v\n", rootDir, err)
-		// os.Exit(1) // Exit with a non-zero status code to indicate an error
+		// save the environment back to the config
+		config.Environments[envName] = env
+
 	}
+
+	// Convert back to JSON string
+	updatedConfig, err := json.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	return string(updatedConfig), nil
 }
