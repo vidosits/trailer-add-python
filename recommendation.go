@@ -13,9 +13,9 @@ func environmentHasPython(environment Environment) bool {
 	return false
 }
 
-func Match(configuration string) (bool, error) {
+func Match(configuration []byte) (bool, error) {
 	var config ImageConfiguration
-	if err := json.Unmarshal([]byte(configuration), &config); err != nil {
+	if err := json.Unmarshal(configuration, &config); err != nil {
 		return false, err
 	}
 
@@ -30,10 +30,11 @@ func Match(configuration string) (bool, error) {
 	return false, nil
 }
 
-func Recommend(configuration string) (string, error) {
+func Recommend(configuration []byte) ([]byte, error) {
 	var config ImageConfiguration
-	if err := json.Unmarshal([]byte(configuration), &config); err != nil {
-		return "", err
+
+	if err := json.Unmarshal(configuration, &config); err != nil {
+		return nil, err
 	}
 
 	// Add an unconstrained version of python to each environment
@@ -59,11 +60,11 @@ func Recommend(configuration string) (string, error) {
 
 	}
 
-	// Convert back to JSON string
+	// Convert back to JSON
 	updatedConfig, err := json.Marshal(config)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(updatedConfig), nil
+	return updatedConfig, nil
 }
