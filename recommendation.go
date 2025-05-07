@@ -13,15 +13,15 @@ func environmentHasPython(environment Environment) bool {
 	return false
 }
 
-func Match(serializedImage []byte) (bool, error) {
-	var image Image
+func Match(data []byte) (bool, error) {
+	var configuration ImageConfiguration
 
-	if err := json.Unmarshal(serializedImage, &image); err != nil {
+	if err := json.Unmarshal(data, &configuration); err != nil {
 		return false, err
 	}
 
 	// Check if ANY environment is missing a conda package named "python"
-	for _, env := range image.Configuration.Environments {
+	for _, env := range configuration.Environments {
 		if len(env.Packages) > 0 && !environmentHasPython(env) {
 			return true, nil
 		}
@@ -31,15 +31,15 @@ func Match(serializedImage []byte) (bool, error) {
 	return false, nil
 }
 
-func Recommend(serializedImage []byte) ([]byte, error) {
-	var image Image
+func Recommend(data []byte) ([]byte, error) {
+	var configuration ImageConfiguration
 
-	if err := json.Unmarshal(serializedImage, &image); err != nil {
+	if err := json.Unmarshal(data, &configuration); err != nil {
 		return nil, err
 	}
 
 	// Add an unconstrained version of python to each environment
-	for envName, env := range image.Configuration.Environments {
+	for envName, env := range configuration.Environments {
 		if environmentHasPython(env) || len(env.Packages) == 0 {
 			continue
 		}
@@ -57,12 +57,12 @@ func Recommend(serializedImage []byte) ([]byte, error) {
 		env.Packages = append(env.Packages, pythonPackage)
 
 		// save the environment back to the config
-		image.Configuration.Environments[envName] = env
+		configuration.Environments[envName] = env
 
 	}
 
 	// Convert back to JSON
-	updatedImage, err := json.Marshal(image)
+	updatedImage, err := json.Marshal(configuration)
 	if err != nil {
 		return nil, err
 	}

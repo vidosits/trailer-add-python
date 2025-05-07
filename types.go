@@ -59,20 +59,3 @@ type ImageConfiguration struct {
 	BaseImage    string                 `json:"baseImage"`
 	Startup      startup                `json:"startup"`
 }
-
-type Image struct {
-	Dockerfile     string             `json:"dockerfile"`
-	Status         string             `json:"status"`
-	Name           string             `json:"name"`
-	Description    string             `json:"description"`
-	ID             string             `json:"id"`
-	FileToken      string             `json:"fileToken"`
-	Repository     string             `json:"repository"`
-	Digest         string             `json:"digest"`
-	Tag            string             `json:"tag"`
-	Configuration  ImageConfiguration `json:"configuration"`
-	Files          []File             `json:"files"`
-	PushAfterBuild bool               `json:"pushAfterBuild"`
-	External       bool               `json:"external"`
-	ForcePullBase  bool               `json:"forcePullBase"`
-}
