@@ -55,7 +55,7 @@ type File struct {
 type ImageConfiguration struct {
 	Environments map[string]Environment `json:"environments"`
 	FilePaths    map[string]string      `json:"filePaths"`
-	User         *UserConfiguration     `json:"user"`
+	User         *UserConfiguration     `json:"user,omitempty,omitzero"`
 	BaseImage    string                 `json:"baseImage"`
 	Startup      startup                `json:"startup"`
 }
