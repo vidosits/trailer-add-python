@@ -44,7 +44,7 @@ func Recommend(data []byte) ([]byte, error) {
 			continue
 		}
 
-		pythonPackage := Package[Version]{
+		pythonPackage := Package{
 			Name: "python",
 			Version: Version{
 				Specifier:  UnconstrainedVersion,
