@@ -20,6 +20,7 @@ type Package struct {
 
 type Environment struct {
 	Packages []Package `json:"packages"`
+	Channels []string  `json:"channels"`
 }
 
 type ImageConfiguration struct {
