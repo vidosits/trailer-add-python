@@ -13,10 +13,10 @@ func environmentHasPython(environment Environment) bool {
 	return false
 }
 
-func Match(data []byte) (bool, error) {
+func Match(target []byte, _ []byte) (bool, error) {
 	var configuration ImageConfiguration
 
-	if err := json.Unmarshal(data, &configuration); err != nil {
+	if err := json.Unmarshal(target, &configuration); err != nil {
 		return false, err
 	}
 
@@ -31,10 +31,10 @@ func Match(data []byte) (bool, error) {
 	return false, nil
 }
 
-func Recommend(data []byte) ([]byte, error) {
+func Recommend(target []byte, _ []byte) ([]byte, error) {
 	var configuration ImageConfiguration
 
-	if err := json.Unmarshal(data, &configuration); err != nil {
+	if err := json.Unmarshal(target, &configuration); err != nil {
 		return nil, err
 	}
 
